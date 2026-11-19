@@ -76,7 +76,18 @@ public static class BudgetRules
     public static string? NormalizeCategory(string? input)
     {
         // TODO
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(input))
+            return null;
+
+        return input.Trim().ToLowerInvariant() switch
+        {
+            "food" or "f" => "Food",
+            "transport" or "t" => "Transport",
+            "utilities" or "u" => "Utilities",
+            "entertainment" or "e" => "Entertainment",
+            "other" or "o" => "Other",
+            _ => null
+        };
     }
 
     /// <summary>
