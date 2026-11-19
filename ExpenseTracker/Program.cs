@@ -93,5 +93,41 @@ static void AddExpense()
 
     description = description.Trim();
 
+    decimal amount;
+
+    while (true)
+    {
+        Console.Write("Enter expense amount: ");
+        string? amountInput = Console.ReadLine();
+
+        if (!decimal.TryParse(amountInput, out amount))
+        {
+            Console.WriteLine("Invalid amount. Enter a valid number.");
+            continue;
+        }
+
+        try
+        {
+            amount = BudgetRules.ValidateAmount(amount);
+
+            if (amount <= 0m)
+            {
+                throw new InvalidExpenseException(
+                    "Rounded amount must be greater than zero.");
+            }
+
+            break;
+        }
+        catch (InvalidExpenseException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    string classification = BudgetRules.ClassifyAmount(amount);
+
+    // Show expense information
     Console.WriteLine($"Description: {description}");
+    Console.WriteLine($"Amount: {BudgetRules.FormatCurrency(amount)}");
+    Console.WriteLine($"Classification: {classification}");
 }
