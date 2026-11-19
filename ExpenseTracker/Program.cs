@@ -21,6 +21,77 @@
 // =====================================================================
 using ExpenseTracker;
 
-Console.WriteLine("MyBudget — TODO: build the interactive menu UI (see the brief).");
+//Console.WriteLine("MyBudget — TODO: build the interactive menu UI (see the brief).");
 
 // Delete the line above and implement the application here.
+
+// Banner
+Console.WriteLine("""
+    ====================================
+          MYBUDGET EXPENSE TRACKER
+    ====================================
+    """);
+
+bool running = true;
+
+// Main
+while (running)
+{
+    Console.WriteLine("""
+
+        1. Add an expense
+        2. View summary
+        3. Set monthly budget
+        4. Exit
+        """);
+
+    Console.Write("Select an option: ");
+    string? choice = Console.ReadLine();
+
+    switch (choice)
+    {
+        case "1":
+            AddExpense();
+            break;
+
+        case "2":
+            Console.WriteLine("View summary");
+            break;
+
+        case "3":
+            Console.WriteLine("Set monthly budget");
+            break;
+
+        case "4":
+            running = false;
+            break;
+
+        default:
+            Console.WriteLine("Invalid option. Try again.");
+            break;
+    }
+}
+
+// Feature 1: Add an expense
+static void AddExpense()
+{
+    Console.WriteLine("\n--- Add an expense ---");
+
+    string? description;
+
+    do
+    {
+        Console.Write("Enter expense description: ");
+        description = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            Console.WriteLine("Description cannot be empty.");
+        }
+
+    } while (string.IsNullOrWhiteSpace(description));
+
+    description = description.Trim();
+
+    Console.WriteLine($"Description: {description}");
+}
