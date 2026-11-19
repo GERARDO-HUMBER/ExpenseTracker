@@ -36,6 +36,18 @@ Console.WriteLine("""
 
 bool running = true;
 
+//accumulators
+int expenseCount = 0;
+decimal totalExpenses = 0m;
+decimal highestExpense = 0m;
+
+//totals by category
+decimal foodTotal = 0m;
+decimal transportTotal = 0m;
+decimal utilitiesTotal = 0m;
+decimal entertainmentTotal = 0m;
+decimal otherTotal = 0m;
+
 // Main
 while (running)
 {
@@ -75,129 +87,188 @@ while (running)
 }
 
 // Feature 1: Add an expense
-static void AddExpense()
+void AddExpense()
 {
     Console.WriteLine("\n--- Add an expense ---");
 
-    string? description;
-
-    do
+    try
     {
-        Console.Write("Enter expense description: ");
-        description = Console.ReadLine();
+        
+        string? description;
 
-        if (string.IsNullOrWhiteSpace(description))
+        do
         {
-            Console.WriteLine("Description cannot be empty.");
-        }
+            Console.Write("Enter expense description: ");
+            description = Console.ReadLine();
 
-    } while (string.IsNullOrWhiteSpace(description));
-
-    description = description.Trim();
-
-    // 
-    decimal amount;
-
-    while (true)
-    {
-        Console.Write("Enter expense amount: ");
-        string? amountInput = Console.ReadLine();
-
-        if (!decimal.TryParse(amountInput, out amount))
-        {
-            Console.WriteLine("Invalid amount. Enter a valid number.");
-            continue;
-        }
-
-        try
-        {
-            amount = BudgetRules.ValidateAmount(amount);
-
-            if (amount <= 0m)
+            if (string.IsNullOrWhiteSpace(description))
             {
-                throw new InvalidExpenseException(
-                    "Rounded amount must be greater than zero.");
+                Console.WriteLine("Description cannot be empty.");
+            }
+
+        } while (string.IsNullOrWhiteSpace(description));
+
+        description = description.Trim();
+
+        // Read and validate the expense amount
+        decimal amount;
+
+        while (true)
+        {
+            Console.Write("Enter expense amount: ");
+            string? amountInput = Console.ReadLine();
+
+            if (!decimal.TryParse(amountInput, out amount))
+            {
+                Console.WriteLine(
+                    "Invalid amount. Enter a valid number.");
+                continue;
+            }
+
+            try
+            {
+                amount = BudgetRules.ValidateAmount(amount);
+
+                if (amount <= 0m)
+                {
+                    throw new InvalidExpenseException(
+                        "Rounded amount must be greater than zero.");
+                }
+
+                break;
+            }
+            catch (InvalidExpenseException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        // Classify the expense amount
+        string classification = BudgetRules.ClassifyAmount(amount);
+
+        // Read and validate the expense category
+        string? category;
+
+        do
+        {
+            Console.WriteLine(
+                "Categories: Food, Transport, Utilities, Entertainment, Other");
+
+            Console.Write("Enter expense category: ");
+
+            category = BudgetRules.NormalizeCategory(Console.ReadLine());
+
+            if (category is null)
+            {
+                Console.WriteLine(
+                    "Invalid category. Please try again.");
+            }
+
+        } while (category is null);
+
+        // Read and validate the expense date
+        DateTime expenseDate;
+
+        while (true)
+        {
+            Console.Write(
+                "Enter date (yyyy-MM-dd, blank for today): ");
+
+            string? dateInput = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(dateInput))
+            {
+                expenseDate = DateTime.Today;
+                break;
+            }
+
+            if (!DateTime.TryParseExact(
+                    dateInput.Trim(),
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out expenseDate))
+            {
+                Console.WriteLine(
+                    "Invalid date. Use yyyy-MM-dd format.");
+                continue;
+            }
+
+            if (expenseDate > DateTime.Today)
+            {
+                Console.WriteLine(
+                    "Expense date cannot be in the future.");
+                continue;
             }
 
             break;
         }
-        catch (InvalidExpenseException ex)
+
+        // Read the optional expense note
+        Console.Write("Enter an optional note: ");
+        string? note = Console.ReadLine()?.Trim();
+
+        if (string.IsNullOrWhiteSpace(note))
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            note = null;
         }
-    }
 
-    
-    string classification = BudgetRules.ClassifyAmount(amount);
+        // Update expense accumulators
+        expenseCount++;
+        totalExpenses += amount;
 
-    
-    string? category;
+        // Update highest expense
+        if (amount > highestExpense)
+        {
+            highestExpense = amount;
+        }
 
-    do
-    {
+        // Update category total
+        switch (category)
+        {
+            case "Food":
+                foodTotal += amount;
+                break;
+
+            case "Transport":
+                transportTotal += amount;
+                break;
+
+            case "Utilities":
+                utilitiesTotal += amount;
+                break;
+
+            case "Entertainment":
+                entertainmentTotal += amount;
+                break;
+
+            case "Other":
+                otherTotal += amount;
+                break;
+        }
+
+        // Display the registered expense
+        Console.WriteLine("\n--- Expense details ---");
+        Console.WriteLine($"Description: {description}");
+        Console.WriteLine($"Amount: {BudgetRules.FormatCurrency(amount)}");
+        Console.WriteLine($"Classification: {classification}");
+        Console.WriteLine($"Category: {category}");
+        Console.WriteLine($"Date: {expenseDate:yyyy-MM-dd}");
+        Console.WriteLine($"Note: {note ?? "No note provided."}");
+
+        Console.WriteLine("\nExpense added successfully!");
+
+        // Show current running totals
+        Console.WriteLine($"Expenses recorded: {expenseCount}");
         Console.WriteLine(
-            "Categories: Food, Transport, Utilities, Entertainment, Other");
-
-        Console.Write("Enter expense category: ");
-
-        category = BudgetRules.NormalizeCategory(Console.ReadLine());
-
-        if (category is null)
-        {
-            Console.WriteLine("Invalid category. Please try again.");
-        }
-
-    } while (category is null);
-
-    
-    DateTime expenseDate;
-
-    while (true)
-    {
-        Console.Write("Enter date (yyyy-MM-dd, blank for today): ");
-        string? dateInput = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(dateInput))
-        {
-            expenseDate = DateTime.Today;
-            break;
-        }
-
-        if (!DateTime.TryParseExact(
-                dateInput.Trim(),
-                "yyyy-MM-dd",
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.None,
-                out expenseDate))
-        {
-            Console.WriteLine("Invalid date. Use yyyy-MM-dd format.");
-            continue;
-        }
-
-        if (expenseDate > DateTime.Today)
-        {
-            Console.WriteLine("Expense date cannot be in the future.");
-            continue;
-        }
-
-        break;
+            $"Running total: {BudgetRules.FormatCurrency(totalExpenses)}");
     }
-
-    // Optional note
-    Console.Write("Enter an optional note: ");
-    string? note = Console.ReadLine()?.Trim();
-
-    if (string.IsNullOrWhiteSpace(note))
+    catch (InvalidExpenseException ex)
     {
-        note = null;
+        Console.WriteLine($"Expense registration failed: {ex.Message}");
     }
-
-    // Show expense information
-    Console.WriteLine("\n--- Expense details ---");
-    Console.WriteLine($"Description: {description}");
-    Console.WriteLine($"Amount: {BudgetRules.FormatCurrency(amount)}");
-    Console.WriteLine($"Classification: {classification}");
-    Console.WriteLine($"Category: {category}");
-    Console.WriteLine($"Date: {expenseDate:yyyy-MM-dd}");
-    Console.WriteLine($"Note: {note ?? "No note provided."}");
+    finally
+    {
+        Console.WriteLine("\nReturning to the main menu...");
+    }
 }
