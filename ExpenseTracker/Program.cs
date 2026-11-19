@@ -76,7 +76,7 @@ while (running)
             break;
 
         case "3":
-            Console.WriteLine("Set monthly budget");
+            SetMonthlyBudget();
             break;
 
         case "4":
@@ -355,4 +355,82 @@ void ViewSummary()
     }
 
     Console.WriteLine("\n====================================");
+}
+
+// Feature 3
+void SetMonthlyBudget()
+{
+    Console.WriteLine("\n--- Set monthly budget ---");
+
+    // Display the current monthly budget
+    if (monthlyBudget.HasValue)
+    {
+        Console.WriteLine(
+            $"Current monthly budget: {BudgetRules.FormatCurrency(monthlyBudget.Value)}");
+    }
+    else
+    {
+        Console.WriteLine("No monthly budget has been set.");
+    }
+
+    decimal budget;
+
+    // Read and validate the monthly budget
+    while (true)
+    {
+        Console.Write("Enter monthly budget: ");
+        string? budgetInput = Console.ReadLine();
+
+        if (!decimal.TryParse(budgetInput, out budget))
+        {
+            Console.WriteLine(
+                "Invalid budget. Enter a valid number.");
+
+            continue;
+        }
+
+        try
+        {
+            // Validate and round the budget amount
+            budget = BudgetRules.ValidateAmount(budget);
+
+            // Ensure the rounded budget is positive
+            if (budget <= 0m)
+            {
+                throw new InvalidExpenseException(
+                    "Monthly budget must be greater than zero.");
+            }
+
+            break;
+        }
+        catch (InvalidExpenseException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    // Store or update the monthly budget
+    monthlyBudget = budget;
+
+    // Calculate the remaining budget
+    decimal remaining = budget - totalExpenses;
+
+    // Evaluate the budget status
+    string status = BudgetRules.BudgetStatus(remaining, budget);
+
+    // Display the monthly budget details
+    Console.WriteLine("\nMonthly budget set successfully!");
+
+    Console.WriteLine(
+        $"Monthly budget: {BudgetRules.FormatCurrency(budget)}");
+
+    Console.WriteLine(
+        $"Total expenses: {BudgetRules.FormatCurrency(totalExpenses)}");
+
+    Console.WriteLine(
+        $"Remaining budget: {BudgetRules.FormatCurrency(remaining)}");
+
+    Console.WriteLine($"Budget status: {status}");
+
+    Console.WriteLine("\nReturning to the main menu...");
 }
