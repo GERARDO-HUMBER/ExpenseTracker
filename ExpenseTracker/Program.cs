@@ -25,6 +25,8 @@ using ExpenseTracker;
 
 // Delete the line above and implement the application here.
 
+using System.Globalization;
+
 // Banner
 Console.WriteLine("""
     ====================================
@@ -93,6 +95,7 @@ static void AddExpense()
 
     description = description.Trim();
 
+    // 
     decimal amount;
 
     while (true)
@@ -124,10 +127,77 @@ static void AddExpense()
         }
     }
 
+    
     string classification = BudgetRules.ClassifyAmount(amount);
 
+    
+    string? category;
+
+    do
+    {
+        Console.WriteLine(
+            "Categories: Food, Transport, Utilities, Entertainment, Other");
+
+        Console.Write("Enter expense category: ");
+
+        category = BudgetRules.NormalizeCategory(Console.ReadLine());
+
+        if (category is null)
+        {
+            Console.WriteLine("Invalid category. Please try again.");
+        }
+
+    } while (category is null);
+
+    
+    DateTime expenseDate;
+
+    while (true)
+    {
+        Console.Write("Enter date (yyyy-MM-dd, blank for today): ");
+        string? dateInput = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(dateInput))
+        {
+            expenseDate = DateTime.Today;
+            break;
+        }
+
+        if (!DateTime.TryParseExact(
+                dateInput.Trim(),
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out expenseDate))
+        {
+            Console.WriteLine("Invalid date. Use yyyy-MM-dd format.");
+            continue;
+        }
+
+        if (expenseDate > DateTime.Today)
+        {
+            Console.WriteLine("Expense date cannot be in the future.");
+            continue;
+        }
+
+        break;
+    }
+
+    // Optional note
+    Console.Write("Enter an optional note: ");
+    string? note = Console.ReadLine()?.Trim();
+
+    if (string.IsNullOrWhiteSpace(note))
+    {
+        note = null;
+    }
+
     // Show expense information
+    Console.WriteLine("\n--- Expense details ---");
     Console.WriteLine($"Description: {description}");
     Console.WriteLine($"Amount: {BudgetRules.FormatCurrency(amount)}");
     Console.WriteLine($"Classification: {classification}");
+    Console.WriteLine($"Category: {category}");
+    Console.WriteLine($"Date: {expenseDate:yyyy-MM-dd}");
+    Console.WriteLine($"Note: {note ?? "No note provided."}");
 }
