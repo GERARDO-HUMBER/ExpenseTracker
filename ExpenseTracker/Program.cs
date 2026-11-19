@@ -62,24 +62,40 @@ while (running)
         4. Exit
         """);
 
+    
     Console.Write("Select an option: ");
     string? choice = Console.ReadLine();
 
-    switch (choice)
+    // Validate the menu option
+    if (choice is null)
     {
-        case "1":
+        ExitApplication();
+        break;
+    }
+
+    if (!int.TryParse(choice, out int menuOption)
+        || menuOption is < 1 or > 4)
+    {
+        Console.WriteLine("Invalid option. Please try again.");
+        continue;
+    }
+
+    switch (menuOption)
+    {
+        case 1:
             AddExpense();
             break;
 
-        case "2":
+        case 2:
             ViewSummary();
             break;
 
-        case "3":
+        case 3:
             SetMonthlyBudget();
             break;
 
-        case "4":
+        case 4:
+            ExitApplication();
             running = false;
             break;
 
@@ -252,7 +268,7 @@ void AddExpense()
 
         // Display the registered expense
         Console.WriteLine("\n--- Expense details ---");
-        Console.WriteLine($"Description: {description}");
+        Console.WriteLine($"Description: {PreviewDescription(description)}");
         Console.WriteLine($"Amount: {BudgetRules.FormatCurrency(amount)}");
         Console.WriteLine($"Classification: {classification}");
         Console.WriteLine($"Category: {category}");
@@ -433,4 +449,31 @@ void SetMonthlyBudget()
     Console.WriteLine($"Budget status: {status}");
 
     Console.WriteLine("\nReturning to the main menu...");
+}
+
+
+// Feature 4: Exit
+void ExitApplication()
+{
+    Console.WriteLine("""
+
+        ====================================
+               END OF SESSION
+        ====================================
+        """);
+
+    Console.WriteLine($"Expenses recorded: {expenseCount}");
+
+    Console.WriteLine(
+        $"Total expenses: {BudgetRules.FormatCurrency(totalExpenses)}");
+
+    Console.WriteLine("Bye!");
+}
+
+// short preview of an expense description
+static string PreviewDescription(string description)
+{
+    return description.Length > 30
+        ? $"{description[..20]}...{description[^7..]}"
+        : description;
 }
