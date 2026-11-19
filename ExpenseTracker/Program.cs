@@ -48,6 +48,9 @@ decimal utilitiesTotal = 0m;
 decimal entertainmentTotal = 0m;
 decimal otherTotal = 0m;
 
+// budget for month
+decimal? monthlyBudget = null;
+
 // Main
 while (running)
 {
@@ -69,7 +72,7 @@ while (running)
             break;
 
         case "2":
-            Console.WriteLine("View summary");
+            ViewSummary();
             break;
 
         case "3":
@@ -271,4 +274,85 @@ void AddExpense()
     {
         Console.WriteLine("\nReturning to the main menu...");
     }
+}
+
+// Feature 2
+void ViewSummary()
+{
+    // banner
+    Console.WriteLine("""
+
+        ====================================
+                  EXPENSE SUMMARY
+        ====================================
+        """);
+
+   
+    if (expenseCount == 0)
+    {
+        Console.WriteLine("No expenses recorded yet.");
+    }
+    else
+    {
+        // average
+        decimal averageExpense = totalExpenses / expenseCount;
+
+        // statistics
+        Console.WriteLine($"Number of expenses: {expenseCount}");
+
+        Console.WriteLine(
+            $"Total expenses: {BudgetRules.FormatCurrency(totalExpenses)}");
+
+        Console.WriteLine(
+            $"Average expense: {BudgetRules.FormatCurrency(averageExpense)}");
+
+        Console.WriteLine(
+            $"Highest expense: {BudgetRules.FormatCurrency(highestExpense)}");
+
+        // by category
+        Console.WriteLine("\n--- Expenses by category ---");
+
+        Console.WriteLine(
+            $"Food: {BudgetRules.FormatCurrency(foodTotal)}");
+
+        Console.WriteLine(
+            $"Transport: {BudgetRules.FormatCurrency(transportTotal)}");
+
+        Console.WriteLine(
+            $"Utilities: {BudgetRules.FormatCurrency(utilitiesTotal)}");
+
+        Console.WriteLine(
+            $"Entertainment: {BudgetRules.FormatCurrency(entertainmentTotal)}");
+
+        Console.WriteLine(
+            $"Other: {BudgetRules.FormatCurrency(otherTotal)}");
+    }
+
+    // show monthly budget information
+    Console.WriteLine("\n--- Monthly budget ---");
+
+    if (monthlyBudget.HasValue)
+    {
+        decimal budget = monthlyBudget.Value;
+
+        // remaining budget
+        decimal remaining = budget - totalExpenses;
+
+        // budget status
+        string status = BudgetRules.BudgetStatus(remaining, budget);
+
+        Console.WriteLine(
+            $"Monthly budget: {BudgetRules.FormatCurrency(budget)}");
+
+        Console.WriteLine(
+            $"Remaining budget: {BudgetRules.FormatCurrency(remaining)}");
+
+        Console.WriteLine($"Budget status: {status}");
+    }
+    else
+    {
+        Console.WriteLine("Monthly budget has not been set.");
+    }
+
+    Console.WriteLine("\n====================================");
 }
