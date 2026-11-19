@@ -98,7 +98,15 @@ public static class BudgetRules
     public static string BudgetStatus(decimal remaining, decimal monthlyLimit)
     {
         // TODO
-        throw new NotImplementedException();
+        if (monthlyLimit <= 0m)
+            throw new InvalidExpenseException("Monthly budget must be greater than zero.");
+
+        return remaining switch
+        {
+            < 0m => "OVER BUDGET",
+            var value when value / monthlyLimit < NearLimitFraction => "Almost out",
+            _ => "On track"
+        };
     }
 
     /// <summary>
