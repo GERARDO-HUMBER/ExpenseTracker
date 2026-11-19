@@ -12,6 +12,8 @@
 //  Work one method at a time. Run the tests, watch them turn green.
 //  All methods are pure: no Console I/O, no shared state.
 // =====================================================================
+using System.Globalization;
+
 namespace ExpenseTracker;
 
 public static class BudgetRules
@@ -116,7 +118,7 @@ public static class BudgetRules
     public static string FormatCurrency(decimal amount)
     {
         // TODO: return FormatCurrency(amount, "$");
-        throw new NotImplementedException();
+        return FormatCurrency(amount, "$");
     }
 
     /// <summary>
@@ -125,7 +127,8 @@ public static class BudgetRules
     public static string FormatCurrency(decimal amount, string currencySymbol)
     {
         // TODO: use a "0.00" format string
-        throw new NotImplementedException();
+        string formattedAmount = amount.ToString("0.00", CultureInfo.InvariantCulture);
+        return $"{currencySymbol}{formattedAmount}";
     }
 }
 
