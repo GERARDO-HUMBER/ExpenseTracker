@@ -25,6 +25,21 @@ string dataPath = Path.Combine(AppContext.BaseDirectory, "expenses.json");
 //   - ConsoleApp          (the UI, so it can be resolved below)
 // Choose appropriate service lifetimes (singleton / scoped / transient).
 
+// JSON expense store
+builder.Services.AddSingleton<IExpenseStore>(
+    _ => new JsonExpenseStore(dataPath));
+
+// Expense repository
+builder.Services.AddSingleton<IExpenseRepository, ExpenseRepository>();
+
+// Monthly budget service
+builder.Services.AddSingleton<IBudgetService, BudgetService>();
+
+// Console user interface
+builder.Services.AddTransient<ConsoleApp>();
+
+// Build the host
 using IHost host = builder.Build();
 
+// Resolve and run console
 host.Services.GetRequiredService<ConsoleApp>().Run();
