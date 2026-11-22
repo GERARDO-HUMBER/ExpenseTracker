@@ -18,7 +18,9 @@ public sealed class ExpenseRepository : IExpenseRepository
     // Return all registered expenses
     public IReadOnlyList<Expense> GetAll()
     {
-        return _expenses.AsReadOnly();
+        return _expenses
+        .OrderBy(expense => expense.Date)
+        .ToList();
     }
 
     // Add a new expense to the collection
@@ -48,8 +50,9 @@ public sealed class ExpenseRepository : IExpenseRepository
     public IReadOnlyList<Expense> InCategory(ExpenseCategory category)
     {
         return _expenses
-            .Where(expense => expense.Category == category)
-            .ToList();
+        .Where(expense => expense.Category == category)
+        .OrderBy(expense => expense.Date)
+        .ToList();
     }
 
     // Save all expenses through the storage abstraction
